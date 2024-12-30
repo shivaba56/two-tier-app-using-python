@@ -1,15 +1,16 @@
 from flask import Flask, render_template, request, redirect
 import mysql.connector
 from mysql.connector import Error
+import os
 
 app = Flask(__name__)
 
 # Database connection function
 def get_db_connection():
     return mysql.connector.connect(
-        host="172.31.23.68",
-        user="root",         # Replace with your MySQL username
-        #password="",         # Replace with your MySQL password
+        host="172.31.16.127",
+        user="venky",         # Replace with your MySQL username
+        password="Ganesh@123",         # Replace with your MySQL password
         database="user_db"   # Replace with your database name
     )
 
@@ -42,5 +43,6 @@ def register():
         return f"Error: {e}"
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True,host='0.0.0.0',port=port)
 
