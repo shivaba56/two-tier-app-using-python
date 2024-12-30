@@ -1,27 +1,29 @@
-# two-tier-app-using-python
-==========================================================
+two-tier-app-using-python
+==========================
+
 MYSQL Server Setup:
 
-ENV setp (AWS)
+-- ENV setp (AWS)
 
-. ami           - ubuntu server 22.04
+. ami           - ubuntu server 22.04 LTS
 . instance type - t2.medium
 
-Configuration :
+-- Configuration :
 
-Login to the server
+Login to the server with the pulic ip 
 
 sudo apt update
-sudo apt install mysql-server
+sudo apt install mysql-server -y
 sudo systemctl status mysql
 sudo mysql_secure_installation
 sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf
+   
    - bind-address            = 0.0.0.0
-   - mysqlx-bind-address     = 0.0.0.0
-   - 
+  
+   
 sudo systemctl restart mysql
 
-#sudo ufw allow from 172.31.87.8(webserverip ) to any port 3306 -- try it you are not able connect Need to test it again 
+
 
 logs - cat /var/log/mysql/error.log
 
@@ -31,11 +33,11 @@ sudo mysql -u root
 
 -- Create database
 
-CREATE DATABASE user_db;
+  CREATE DATABASE user_db;
 
 -- Use the database
 
-USE user_db;
+  USE user_db;
 
 -- Create users table
 
@@ -58,25 +60,76 @@ GRANT ALL PRIVILEGES ON user_db.* TO 'venky'@'%';
 
 FLUSH PRIVILEGES;
 
+
+------------------------
+
+Web Server Setup:
+
+-- ENV setp (AWS)
+
+. ami           - ubuntu server 22.04 LTS
+. instance type - t2.micro
+
+
 -- check the comunication between websever and mysql server 
 
 . login to the web sever
 
-telnet <private ip of mysql server> 3306
+telnet <private ip of the mysql server> 3306
 
+-- install the docker 
 
-. update the database details from the app.py 
+   sudo apt-get update -y
+   sudo apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common -y
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+   sudo apt-key fingerprint 0EBFCD88
+   sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" -y
+   sudo apt-get update -y
+   sudo apt-get install docker-ce docker-ce-cli containerd.io -y
+   sudo usermod -aG docker ubuntu
+   exit
+   
+   
+- clone the git repo on to the server
 
-. docker build -t <give image name - anyting > .
+  . git clone https://github.com/venkymca/two-tier-app-using-python.git
 
-. run the appliation 
+  . cd wo-tier-app-using-python
 
-  docker run -itd -p 1000:5000 namov2
+- update the database details from the app.py file 
 
-. access the application from the server 
+   sudo vim app.py file
+  
+    host="***",             # replace mysql server private ip
+    user="venky",           # Replace with your MySQL username
+    password="Ganesh@123",  # Replace with your MySQL password
+    database="user_db"      # Replace with your database name
 
-    http://<webserver public ip >:1000/  
+- build the image 
 
+   docker build -t <give image name - anyting > .
+
+- run the appliation 
+
+  docker run -itd -p 1000:5000 <img name that we given aboue step>
+  
+- check the container is running or not
+
+    docker ps
+  
+ - test the application 
+
+    . http://<webserver public ip >:1000
+    . create the account 
+
+ - check the data from mysql server
+
+   . login to the mysql server
+   . sudo mysql -u root
+   . show databases;
+   . use user_db:
+   . select * from users;
+   . Now if you see the data in the users table, you have  successfully configured everthing. 
 
 -- all the best --
     
